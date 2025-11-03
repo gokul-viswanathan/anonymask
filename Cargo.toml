@@ -6,8 +6,17 @@ description = "Secure anonymization/de-anonymization library for PII data"
 license = "MIT"
 authors = ["Gokul Viswanathan <gokul@example.com>"]
 
+[lib]
+name = "anonymask"
+crate-type = ["rlib", "cdylib"]
+
+[[bin]]
+name = "anonymask_test"
+path = "src/main.rs"
+
 [dependencies]
 regex = "1.10"
 uuid = { version = "1.0", features = ["v4"] }
 serde = { version = "1.0", features = ["derive"] }
 thiserror = "1.0"
+pyo3 = { version = "0.22", features = ["extension-module"] }
