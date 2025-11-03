@@ -1,0 +1,36 @@
+{
+  "name": "@anonymask/core",
+  "version": "0.1.0",
+  "description": "Secure anonymization/de-anonymization library for PII data",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "test": "node test.js"
+  },
+  "keywords": [
+    "anonymization",
+    "PII",
+    "privacy",
+    "LLM",
+    "RAG"
+  ],
+  "author": "Gokul Viswanathan <gokul@example.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18.0"
+  },
+  "napi": {
+    "name": "anonymask",
+    "cargoManifestPath": "../../Cargo.toml",
+    "features": [
+      "node"
+    ],
+    "triples": {
+      "defaults": true,
+      "additional": []
+    }
+  }
+}
+
