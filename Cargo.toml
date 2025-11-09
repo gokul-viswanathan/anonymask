@@ -15,7 +15,7 @@ name = "anonymask_test"
 path = "src/main.rs"
 
 [features]
-default = ["python"]
+default = []
 python = ["pyo3"]
 node = ["napi", "napi-derive"]
 

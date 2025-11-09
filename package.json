@@ -19,7 +19,7 @@
   "author": "Gokul Viswanathan <gokul@example.com>",
   "license": "MIT",
   "devDependencies": {
-    "@napi-rs/cli": "^2.18.0"
+    "@napi-rs/cli": "^2.18.4"
   },
   "napi": {
     "name": "anonymask",
@@ -33,4 +33,3 @@
     }
   }
 }
-

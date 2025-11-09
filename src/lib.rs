@@ -1,16 +1,19 @@
-pub mod entity;
-pub mod detection;
 pub mod anonymizer;
+pub mod detection;
+pub mod entity;
 pub mod error;
 
 pub use anonymizer::Anonymizer;
 pub use entity::{AnonymizationResult, Entity, EntityType};
 pub use error::AnonymaskError;
 
-#[cfg(feature = "python")]
-use pyo3::prelude::*;
+#[cfg(all(feature = "python", feature = "node"))]
+compile_error!("Cannot enable both 'python' and 'node' features at the same time.");
+
 #[cfg(feature = "python")]
 use pyo3::exceptions::PyValueError;
+#[cfg(feature = "python")]
+use pyo3::prelude::*;
 #[cfg(feature = "python")]
 use pyo3::Bound;
 
@@ -33,22 +36,41 @@ impl PyAnonymizer {
             .map(|s| EntityType::from_str(&s))
             .collect();
         let entity_types = entity_types.map_err(|e| PyValueError::new_err(e.to_string()))?;
-        let inner = Anonymizer::new(entity_types).map_err(|e| PyValueError::new_err(e.to_string()))?;
+        let inner =
+            Anonymizer::new(entity_types).map_err(|e| PyValueError::new_err(e.to_string()))?;
         Ok(PyAnonymizer { inner })
     }
 
-    fn anonymize(&self, text: &str) -> PyResult<(String, std::collections::HashMap<String, String>, Vec<PyEntity>)> {
-        let result = self.inner.anonymize(text).map_err(|e| PyValueError::new_err(e.to_string()))?;
-        let entities: Vec<PyEntity> = result.entities.into_iter().map(|e| PyEntity {
-            entity_type: format!("{:?}", e.entity_type).to_lowercase(),
-            value: e.value,
-            start: e.start,
-            end: e.end,
-        }).collect();
+    fn anonymize(
+        &self,
+        text: &str,
+    ) -> PyResult<(
+        String,
+        std::collections::HashMap<String, String>,
+        Vec<PyEntity>,
+    )> {
+        let result = self
+            .inner
+            .anonymize(text)
+            .map_err(|e| PyValueError::new_err(e.to_string()))?;
+        let entities: Vec<PyEntity> = result
+            .entities
+            .into_iter()
+            .map(|e| PyEntity {
+                entity_type: format!("{:?}", e.entity_type).to_lowercase(),
+                value: e.value,
+                start: e.start,
+                end: e.end,
+            })
+            .collect();
         Ok((result.anonymized_text, result.mapping, entities))
     }
 
-    fn deanonymize(&self, text: &str, mapping: std::collections::HashMap<String, String>) -> String {
+    fn deanonymize(
+        &self,
+        text: &str,
+        mapping: std::collections::HashMap<String, String>,
+    ) -> String {
         self.inner.deanonymize(text, &mapping)
     }
 }
@@ -91,27 +113,39 @@ impl JsAnonymizer {
             .map(|s| EntityType::from_str(&s))
             .collect();
         let entity_types = entity_types.map_err(|e| napi::Error::from_reason(e.to_string()))?;
-        let inner = Anonymizer::new(entity_types).map_err(|e| napi::Error::from_reason(e.to_string()))?;
+        let inner =
+            Anonymizer::new(entity_types).map_err(|e| napi::Error::from_reason(e.to_string()))?;
         Ok(JsAnonymizer { inner })
     }
 
     #[napi]
     pub fn anonymize(&self, text: String) -> napi::Result<JsAnonymizationResult> {
-        let result = self.inner.anonymize(&text).map_err(|e| napi::Error::from_reason(e.to_string()))?;
+        let result = self
+            .inner
+            .anonymize(&text)
+            .map_err(|e| napi::Error::from_reason(e.to_string()))?;
         Ok(JsAnonymizationResult {
             anonymized_text: result.anonymized_text,
             mapping: result.mapping,
-            entities: result.entities.into_iter().map(|e| JsEntity {
-                entity_type: format!("{:?}", e.entity_type).to_lowercase(),
-                value: e.value,
-                start: e.start as u32,
-                end: e.end as u32,
-            }).collect(),
+            entities: result
+                .entities
+                .into_iter()
+                .map(|e| JsEntity {
+                    entity_type: format!("{:?}", e.entity_type).to_lowercase(),
+                    value: e.value,
+                    start: e.start as u32,
+                    end: e.end as u32,
+                })
+                .collect(),
         })
     }
 
     #[napi]
-    pub fn deanonymize(&self, text: String, mapping: std::collections::HashMap<String, String>) -> String {
+    pub fn deanonymize(
+        &self,
+        text: String,
+        mapping: std::collections::HashMap<String, String>,
+    ) -> String {
         self.inner.deanonymize(&text, &mapping)
     }
 }
@@ -158,7 +192,9 @@ mod tests {
     #[test]
     fn test_anonymize_multiple_entities() {
         let anonymizer = Anonymizer::new(vec![EntityType::Email, EntityType::Phone]).unwrap();
-        let result = anonymizer.anonymize("Contact john@email.com or call 555-123-4567").unwrap();
+        let result = anonymizer
+            .anonymize("Contact john@email.com or call 555-123-4567")
+            .unwrap();
         assert!(result.anonymized_text.contains("EMAIL_"));
         assert!(result.anonymized_text.contains("PHONE_"));
         assert_eq!(result.entities.len(), 2);
@@ -167,7 +203,9 @@ mod tests {
     #[test]
     fn test_anonymize_duplicate_entities() {
         let anonymizer = Anonymizer::new(vec![EntityType::Email]).unwrap();
-        let result = anonymizer.anonymize("Email john@email.com and jane@email.com").unwrap();
+        let result = anonymizer
+            .anonymize("Email john@email.com and jane@email.com")
+            .unwrap();
         assert!(result.anonymized_text.contains("EMAIL_"));
         // Should have same placeholder for same email
         let parts: Vec<&str> = result.anonymized_text.split("EMAIL_").collect();
@@ -197,3 +235,4 @@ mod tests {
         assert!(result.is_err());
     }
 }
+

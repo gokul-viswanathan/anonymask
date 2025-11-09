@@ -1,7 +1,8 @@
 use anonymask::{Anonymizer, EntityType};
 
 fn main() {
-    let entity_types = vec![EntityType::Email, EntityType::Phone];
+    let entity_types = vec![EntityType::Email];
+    // define custom entities as mapping
     let anonymizer = Anonymizer::new(entity_types).unwrap();
 
     let text = "Contact john@email.com or call 333-555-1234";
@@ -22,4 +23,3 @@ fn main() {
         empty_result.anonymized_text
     );
 }
-

@@ -47,14 +47,14 @@ print(original)  # "Contact john@email.com or 555-1234"
 ### Node.js
 
 ```javascript
-const { Anonymizer } = require('@anonymask/core');
+const { Anonymizer } = require("@anonymask/core");
 
-const anonymizer = new Anonymizer(['email', 'phone']);
-const result = anonymizer.anonymize('Contact john@email.com or 555-1234');
-console.log(result.anonymized_text);  // "Contact EMAIL_abc123 or 555-1234"
+const anonymizer = new Anonymizer(["email", "phone"]);
+const result = anonymizer.anonymize("Contact john@email.com or 555-1234");
+console.log(result.anonymized_text); // "Contact EMAIL_abc123 or 555-1234"
 
 const original = anonymizer.deanonymize(result.anonymized_text, result.mapping);
-console.log(original);  // "Contact john@email.com or 555-1234"
+console.log(original); // "Contact john@email.com or 555-1234"
 ```
 
 ## Supported Entity Types
@@ -65,24 +65,6 @@ console.log(original);  // "Contact john@email.com or 555-1234"
 - `credit_card` - Credit card numbers (e.g., 1234-5678-9012-3456)
 - `ip_address` - IP addresses (e.g., 192.168.1.1)
 - `url` - URLs (e.g., https://example.com)
-
-## API Reference
-
-### Anonymizer
-
-#### Constructor
-- `new(entity_types: List[str])` - Create anonymizer with specified entity types
-
-#### Methods
-- `anonymize(text: str) -> (str, Dict[str, str], List[Entity])` - Returns (anonymized_text, mapping, entities)
-- `deanonymize(text: str, mapping: Dict[str, str]) -> str` - Restore original values
-
-### Entity
-
-- `entity_type: str` - Type of detected entity
-- `value: str` - Original entity value
-- `start: int` - Start position in text
-- `end: int` - End position in text
 
 ## Architecture
 
@@ -167,3 +149,4 @@ MIT License - see LICENSE file for details.
 - [ ] Custom regex patterns
 - [ ] External storage backends
 - [ ] Additional language bindings (Go, Java, C#)
+

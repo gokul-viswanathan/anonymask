@@ -3,13 +3,13 @@
  * Integration tests for anonymask Node.js bindings.
  */
 
-const { Anonymizer } = require("../node_modules/@napi-rs/cli/scripts/index.js");
+const { JsAnonymizer } = require("../../../anonymask.node");
 
 describe("Anonymizer", () => {
   let anonymizer;
 
   beforeEach(() => {
-    anonymizer = new Anonymizer(["email", "phone"]);
+    anonymizer = new JsAnonymizer(["email", "phone"]);
   });
 
   test("anonymizes email", () => {
@@ -86,14 +86,14 @@ if (require.main === module) {
 
   const tests = [
     () => {
-      const anonymizer = new Anonymizer(["email"]);
+      const anonymizer = new JsAnonymizer(["email"]);
       const result = anonymizer.anonymize("test@example.com");
       if (!result.anonymized_text.includes("EMAIL_"))
         throw new Error("Email not anonymized");
       console.log("✓ Email anonymization test passed");
     },
     () => {
-      const anonymizer = new Anonymizer(["email"]);
+      const anonymizer = new JsAnonymizer(["email"]);
       const original = "Contact test@example.com";
       const result = anonymizer.anonymize(original);
       const deanonymized = anonymizer.deanonymize(
