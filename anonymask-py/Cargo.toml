@@ -1,0 +1,15 @@
+[package]
+name = "anonymask-py"
+version = "0.1.0"
+edition = "2021"
+description = "Python bindings for anonymask-core"
+license = "MIT"
+authors = ["Gokul Viswanathan <gokul@example.com>"]
+
+[lib]
+name = "anonymask"
+crate-type = ["cdylib"]
+
+[dependencies]
+anonymask-core = { path = "../anonymask-core" }
+pyo3 = { version = "0.22", features = ["extension-module"] }

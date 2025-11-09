@@ -22,7 +22,7 @@ pip install anonymask
 ### Node.js
 
 ```bash
-npm install @anonymask/core
+npm install @anonymask/node
 ```
 
 ## Quick Start
@@ -47,7 +47,7 @@ print(original)  # "Contact john@email.com or 555-1234"
 ### Node.js
 
 ```javascript
-const { Anonymizer } = require("@anonymask/core");
+const { Anonymizer } = require("@anonymask/node");
 
 const anonymizer = new Anonymizer(["email", "phone"]);
 const result = anonymizer.anonymize("Contact john@email.com or 555-1234");
@@ -112,15 +112,16 @@ See the `examples/` directory for complete usage examples:
 git clone https://github.com/yourusername/anonymask.git
 cd anonymask
 
-# Build Rust library
+# Build Rust core library
+cd anonymask-core
 cargo build --release
 
 # Build Python bindings
-cd bindings/python
+cd ../anonymask-py
 maturin develop
 
 # Build Node.js bindings
-cd ../node
+cd ../anonymask-node
 npm run build
 ```
 

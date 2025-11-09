@@ -1,0 +1,56 @@
+{
+  "name": "@anonymask/core",
+  "version": "0.1.0",
+  "description": "Secure anonymization/de-anonymization library for PII data",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ],
+  "scripts": {
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "test": "jest tests/test_anonymask.js",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/anonymask.git"
+  },
+  "homepage": "https://github.com/yourusername/anonymask",
+  "bugs": {
+    "url": "https://github.com/yourusername/anonymask/issues"
+  },
+  "keywords": [
+    "anonymization",
+    "PII",
+    "privacy",
+    "LLM",
+    "RAG",
+    "security",
+    "data-protection"
+  ],
+  "author": "Gokul Viswanathan <gokul@example.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18.0",
+    "jest": "^30.2.0"
+  },
+  "napi": {
+    "name": "anonymask",
+    "cargoManifestPath": "./Cargo.toml",
+    "triples": {
+      "defaults": true,
+      "additional": [
+        "aarch64-apple-darwin",
+        "x86_64-unknown-linux-gnu",
+        "x86_64-apple-darwin",
+        "x86_64-pc-windows-msvc"
+      ]
+    }
+  }
+}

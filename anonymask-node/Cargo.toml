@@ -1,0 +1,19 @@
+[package]
+name = "anonymask-node"
+version = "0.1.0"
+edition = "2021"
+description = "Node.js bindings for anonymask-core"
+license = "MIT"
+authors = ["Gokul Viswanathan <gokul@example.com>"]
+
+[lib]
+name = "anonymask_node"
+crate-type = ["cdylib"]
+
+[dependencies]
+anonymask-core = { path = "../anonymask-core" }
+napi = { version = "2.16", features = ["serde-json"] }
+napi-derive = "2.16"
+
+[build-dependencies]
+napi-build = "2.1"
