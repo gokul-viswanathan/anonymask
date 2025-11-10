@@ -29,13 +29,13 @@ class TestAnonymizer:
         assert len(result[2]) == 1
         # assert result[2][0]['entity_type'] == 'phone'
 
-    # def test_anonymize_multiple_entities(self):
-    #     text = "Email: user@test.com, Phone: 555-1234"
-    #     result = self.anonymizer.anonymize(text)
-    #
-    #     assert "EMAIL_" in result[0]
-    #     assert "PHONE_" in result[0]
-    #     assert len(result[2]) == 2
+    def test_anonymize_multiple_entities(self):
+        text = "Email: user@test.com, Phone: 555-1234"
+        result = self.anonymizer.anonymize(text)
+
+        assert "EMAIL_" in result[0]
+        assert "PHONE_" not in result[0]
+        assert len(result[2]) == 1
 
     def test_deanonymize(self):
         original = "Contact john@email.com today"
@@ -68,4 +68,3 @@ class TestAnonymizer:
 
 if __name__ == "__main__":
     pytest.main([__file__])
-

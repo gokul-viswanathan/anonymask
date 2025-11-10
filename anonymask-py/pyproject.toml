@@ -43,6 +43,6 @@ Changelog = "https://github.com/yourusername/anonymask/blob/main/CHANGELOG.md"
 
 [tool.maturin]
 manifest-path = "./Cargo.toml"
-python-source = "."
+python-source = "python"
 module-name = "anonymask._anonymask"
 sdist = true

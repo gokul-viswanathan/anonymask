@@ -3,13 +3,16 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::Bound;
 
+// Alias the core Anonymizer to avoid conflict
+use anonymask_core::Anonymizer as CoreAnonymizer;
+
 #[pyclass(name = "Anonymizer")]
-struct PyAnonymizer {
-    inner: Anonymizer,
+struct Anonymizer {
+    inner: CoreAnonymizer,
 }
 
 #[pymethods]
-impl PyAnonymizer {
+impl Anonymizer {
     #[new]
     fn new(entity_types: Vec<String>) -> PyResult<Self> {
         let entity_types: Result<Vec<EntityType>, _> = entity_types
@@ -18,8 +21,8 @@ impl PyAnonymizer {
             .collect();
         let entity_types = entity_types.map_err(|e| PyValueError::new_err(e.to_string()))?;
         let inner =
-            Anonymizer::new(entity_types).map_err(|e| PyValueError::new_err(e.to_string()))?;
-        Ok(PyAnonymizer { inner })
+            CoreAnonymizer::new(entity_types).map_err(|e| PyValueError::new_err(e.to_string()))?;
+        Ok(Anonymizer { inner })
     }
 
     fn anonymize(
@@ -71,7 +74,7 @@ struct PyEntity {
 
 #[pymodule]
 fn _anonymask(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_class::<PyAnonymizer>()?;
+    m.add_class::<Anonymizer>()?;
     m.add_class::<PyEntity>()?;
     Ok(())
 }
