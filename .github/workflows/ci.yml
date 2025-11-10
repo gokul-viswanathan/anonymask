@@ -43,7 +43,7 @@ jobs:
       - name: Build Python bindings
         run: cd anonymask-py && maturin develop
       - name: Run Python tests
-        run: cd anonymask-py && pytest test/test_anonymask.py
+        run: cd anonymask-py && pytest tests/test_anonymask.py
 
   test-node:
     runs-on: ubuntu-latest
