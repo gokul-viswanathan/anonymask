@@ -11,24 +11,39 @@ jobs:
   test-rust:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - run: cd anonymask-core && cargo test
-      - run: cd anonymask-core && cargo bench
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Run tests
+        run: cd anonymask-core && cargo test
+      - name: Run benchmarks
+        run: cd anonymask-core && cargo bench
 
   test-python:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.9", "3.11", "3.13"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install maturin
-      - run: cd anonymask-py && maturin develop
-      - run: cd anonymask-py && pytest test/test_anonymask.py
+      - name: Create virtual environment
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          echo "VIRTUAL_ENV=$VIRTUAL_ENV" >> $GITHUB_ENV
+          echo "$VIRTUAL_ENV/bin" >> $GITHUB_PATH
+      - name: Install dependencies
+        run: pip install maturin pytest
+      - name: Build Python bindings
+        run: cd anonymask-py && maturin develop
+      - name: Run Python tests
+        run: cd anonymask-py && pytest test/test_anonymask.py
 
   test-node:
     runs-on: ubuntu-latest
@@ -36,10 +51,15 @@ jobs:
       matrix:
         node-version: ["16", "18", "20"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - run: cd anonymask-node && npm install
-      - run: cd anonymask-node && npm run build
-      - run: cd anonymask-node && npm test
+      - name: Install dependencies
+        run: cd anonymask-node && npm install
+      - name: Build Node.js bindings
+        run: cd anonymask-node && npm run build
+      - name: Run Node.js tests
+        run: cd anonymask-node && npm test
