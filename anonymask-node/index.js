@@ -310,6 +310,6 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { JsAnonymizer } = nativeBinding
+const { Anonymizer } = nativeBinding
 
-module.exports.JsAnonymizer = JsAnonymizer
+module.exports.Anonymizer = Anonymizer

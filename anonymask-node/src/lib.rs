@@ -1,9 +1,11 @@
-use anonymask_core::*;
 use napi_derive::napi;
+use std::collections::HashMap;
+
+use anonymask_core::{Anonymizer as CoreAnonymizer, EntityType};
 
 #[napi(object)]
 #[derive(Clone)]
-struct JsEntity {
+pub struct Entity {
     pub entity_type: String,
     pub value: String,
     pub start: u32,
@@ -11,44 +13,48 @@ struct JsEntity {
 }
 
 #[napi(object)]
-struct JsAnonymizationResult {
+pub struct AnonymizationResult {
     pub anonymized_text: String,
-    pub mapping: std::collections::HashMap<String, String>,
-    pub entities: Vec<JsEntity>,
+    pub mapping: HashMap<String, String>,
+    pub entities: Vec<Entity>,
 }
 
 #[napi]
-struct JsAnonymizer {
-    inner: Anonymizer,
+pub struct Anonymizer {
+    inner: CoreAnonymizer,
 }
 
 #[napi]
-impl JsAnonymizer {
+impl Anonymizer {
     #[napi(constructor)]
     pub fn new(entity_types: Vec<String>) -> napi::Result<Self> {
         let entity_types: Result<Vec<EntityType>, _> = entity_types
             .into_iter()
             .map(|s| EntityType::from_str(&s))
             .collect();
+
         let entity_types = entity_types.map_err(|e| napi::Error::from_reason(e.to_string()))?;
-        let inner =
-            Anonymizer::new(entity_types).map_err(|e| napi::Error::from_reason(e.to_string()))?;
-        Ok(JsAnonymizer { inner })
+
+        let inner = CoreAnonymizer::new(entity_types)
+            .map_err(|e| napi::Error::from_reason(e.to_string()))?;
+
+        Ok(Self { inner })
     }
 
     #[napi]
-    pub fn anonymize(&self, text: String) -> napi::Result<JsAnonymizationResult> {
+    pub fn anonymize(&self, text: String) -> napi::Result<AnonymizationResult> {
         let result = self
             .inner
             .anonymize(&text)
             .map_err(|e| napi::Error::from_reason(e.to_string()))?;
-        Ok(JsAnonymizationResult {
+
+        Ok(AnonymizationResult {
             anonymized_text: result.anonymized_text,
             mapping: result.mapping,
             entities: result
                 .entities
                 .into_iter()
-                .map(|e| JsEntity {
+                .map(|e| Entity {
                     entity_type: format!("{:?}", e.entity_type).to_lowercase(),
                     value: e.value,
                     start: e.start as u32,
@@ -59,12 +65,7 @@ impl JsAnonymizer {
     }
 
     #[napi]
-    pub fn deanonymize(
-        &self,
-        text: String,
-        mapping: std::collections::HashMap<String, String>,
-    ) -> String {
+    pub fn deanonymize(&self, text: String, mapping: HashMap<String, String>) -> String {
         self.inner.deanonymize(&text, &mapping)
     }
 }
-

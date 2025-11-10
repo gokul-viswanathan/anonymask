@@ -5,7 +5,6 @@ Secure anonymization/de-anonymization library for protecting Personally Identifi
 ## Features
 
 - **Fast regex-based entity detection** for EMAIL, PHONE, SSN, CREDIT_CARD, IP_ADDRESS, URL
-- **Thread-safe in-memory storage** with TTL support (optional)
 - **Deterministic UUID-based placeholders** for consistent anonymization
 - **Multi-language bindings** for Python and Node.js
 - **Zero-copy deanonymization** for performance
@@ -71,17 +70,16 @@ console.log(original); // "Contact john@email.com or 555-1234"
 anonymask is built with Rust for performance and safety:
 
 ```
-User Input → Entity Detection → Placeholder Generation → Mapping Storage → Anonymized Output
-                                      ↓
-LLM Processing ← Deanonymization ← Mapping Retrieval ← Placeholder Matching
+User Input → Entity Detection → Placeholder Generation → Anonymized Output
+                                       ↓
+LLM Processing ← Deanonymization ← Placeholder Matching
 ```
 
 ### Core Components
 
 1. **Entity Detection**: Regex-based pattern matching for structured data
 2. **Anonymization**: Replace detected entities with unique placeholders
-3. **Storage**: In-memory mapping with optional TTL (user-managed)
-4. **Deanonymization**: Restore original values using stored mappings
+3. **Deanonymization**: Restore original values using stored mappings
 
 ## Performance
 
@@ -91,7 +89,6 @@ LLM Processing ← Deanonymization ← Mapping Retrieval ← Placeholder Matchin
 
 ## Security
 
-- **No data persistence**: Mappings stored in memory only
 - **Deterministic placeholders**: Same input always produces same output
 - **Secure UUID generation**: Cryptographically secure random IDs
 - **Input validation**: Comprehensive error handling for malformed data
@@ -144,10 +141,10 @@ MIT License - see LICENSE file for details.
 4. Ensure all tests pass
 5. Submit a pull request
 
-## Roadmap
+## Roadmap:
 
 - [ ] NER-based entity detection (PERSON, ORG, LOCATION)
 - [ ] Custom regex patterns
+- [ ] Custom Text matching.
 - [ ] External storage backends
 - [ ] Additional language bindings (Go, Java, C#)
-
