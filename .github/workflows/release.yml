@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: pip install maturin twine
       - name: Build Python package
-        run: cd anonymask-py && maturin build --release
+        run: cd anonymask-py && maturin build --release --sdist
       - name: Publish to PyPI
         run: twine upload anonymask-py/target/wheels/* --username __token__ --password ${{ secrets.PYPI_API_TOKEN }}
 

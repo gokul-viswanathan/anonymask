@@ -21,7 +21,7 @@ pip install maturin
 4. Build the package:
 
 ```bash
-maturin build --release
+maturin build --release --sdist
 ```
 
 This will compile the Rust code and generate the Python wheel.
@@ -46,3 +46,4 @@ print(result[1])  # {'EMAIL_xxx': 'john@email.com', 'PHONE_xxx': '555-123-4567'}
 4. Publish: `maturin publish`.
 
 Note: Maturin handles the build and upload process. Make sure to have your PyPI credentials set up.
+
