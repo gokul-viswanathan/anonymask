@@ -4,6 +4,10 @@
   "description": "Secure anonymization/de-anonymization library for PII data",
   "main": "index.js",
   "types": "index.d.ts",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "files": [
     "index.js",
     "index.d.ts"
