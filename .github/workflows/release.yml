@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    branches: [release]
+
+jobs:
+  release-python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Create virtual environment
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          echo "VIRTUAL_ENV=$VIRTUAL_ENV" >> $GITHUB_ENV
+          echo "$VIRTUAL_ENV/bin" >> $GITHUB_PATH
+      - name: Install dependencies
+        run: pip install maturin twine
+      - name: Build Python package
+        run: cd anonymask-py && maturin build --release
+      - name: Publish to PyPI
+        run: twine upload anonymask-py/target/wheels/* --username __token__ --password ${{ secrets.PYPI_API_TOKEN }}
+
+  release-node:
+    needs: release-python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          registry-url: "https://registry.npmjs.org/"
+      - name: Install dependencies
+        run: cd anonymask-node && npm ci
+      - name: Build Node.js package
+        run: cd anonymask-node && npm run build
+      - name: Publish to npm
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          cd anonymask-node && npm publish --access public

@@ -16,11 +16,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/anonymask.git"
+    "url": "https://github.com/gokul-viswanathan/anonymask.git"
   },
-  "homepage": "https://github.com/yourusername/anonymask",
+  "homepage": "https://github.com/gokul-viswanathan/anonymask",
   "bugs": {
-    "url": "https://github.com/yourusername/anonymask/issues"
+    "url": "https://github.com/gokul-viswanathan/anonymask/issues"
   },
   "keywords": [
     "anonymization",
@@ -31,7 +31,7 @@
     "security",
     "data-protection"
   ],
-  "author": "Gokul Viswanathan <gokul@example.com>",
+  "author": "Gokul Viswanathan <gokulviswanathan25@gmail.com>",
   "license": "MIT",
   "engines": {
     "node": ">=14.0.0"

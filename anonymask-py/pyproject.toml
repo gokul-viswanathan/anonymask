@@ -8,10 +8,10 @@ version = "0.1.0"
 description = "Secure anonymization/de-anonymization library for PII data"
 license = { text = "MIT" }
 authors = [
-    { name = "Gokul Viswanathan", email = "gokul@example.com" },
+    { name = "Gokul Viswanathan", email = "gokulviswanathan25@gmail.com" },
 ]
 maintainers = [
-    { name = "Gokul Viswanathan", email = "gokul@example.com" },
+    { name = "Gokul Viswanathan", email = "gokulviswanathan25@gmail.com" },
 ]
 keywords = ["anonymization", "PII", "privacy", "LLM", "RAG", "security"]
 classifiers = [
@@ -35,11 +35,11 @@ dependencies = []
 readme = "README.md"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/anonymask"
-Documentation = "https://github.com/yourusername/anonymask#readme"
-Repository = "https://github.com/yourusername/anonymask.git"
-Issues = "https://github.com/yourusername/anonymask/issues"
-Changelog = "https://github.com/yourusername/anonymask/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/gokul-viswanathan/anonymask"
+Documentation = "https://github.com/gokul-viswanathan/anonymask#readme"
+Repository = "https://github.com/gokul-viswanathan/anonymask.git"
+Issues = "https://github.com/gokul-viswanathan/anonymask/issues"
+Changelog = "https://github.com/gokul-viswanathan/anonymask/blob/main/CHANGELOG.md"
 
 [tool.maturin]
 manifest-path = "./Cargo.toml"
