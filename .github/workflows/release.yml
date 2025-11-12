@@ -38,21 +38,23 @@ jobs:
       fail-fast: false
       matrix:
         settings:
+          # Linux x64 - native build
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
 
-          - host: ubuntu-latest
+          # Linux ARM64 - native build using ARM runner
+          - host: ubuntu-latest-arm
             target: aarch64-unknown-linux-gnu
-            setup: |
-              sudo apt-get update
-              sudo apt-get install -y gcc-aarch64-linux-gnu
 
-          - host: macos-latest
+          # macOS Intel - native build
+          - host: macos-13
             target: x86_64-apple-darwin
 
-          - host: macos-latest
+          # macOS Apple Silicon - native build
+          - host: macos-14
             target: aarch64-apple-darwin
 
+          # Windows x64 - native build
           - host: windows-latest
             target: x86_64-pc-windows-msvc
 
@@ -71,12 +73,6 @@ jobs:
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.settings.target }}
-
-      - name: Setup cross-compilation
-        if: ${{ matrix.settings.setup }}
-        run: ${{ matrix.settings.setup }}
 
       - name: Cache cargo
         uses: actions/cache@v4
@@ -85,17 +81,17 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             anonymask-node/target
-          key: ${{ matrix.settings.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.settings.host }}-${{ matrix.settings.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install dependencies
         run: cd anonymask-node && npm ci
 
-      - name: Build for target
-        run: cd anonymask-node && npm run build -- --target ${{ matrix.settings.target }}
+      - name: Build
+        run: cd anonymask-node && npm run build
 
       - name: List build output
         shell: bash
-        run: ls -R anonymask-node/
+        run: ls -R anonymask-node/npm || echo "No npm directory"
 
       - name: Publish platform package
         shell: bash
@@ -126,21 +122,6 @@ jobs:
         with:
           node-version: "20"
           registry-url: "https://registry.npmjs.org/"
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: List artifacts
-        run: ls -R artifacts
-
-      - name: Move artifacts to package
-        run: |
-          mkdir -p anonymask-node/npm
-          if [ -d "artifacts" ]; then
-            cp -r artifacts/bindings-*/* anonymask-node/npm/ || echo "No bindings to copy"
-          fi
 
       - name: Install dependencies
         run: cd anonymask-node && npm ci
