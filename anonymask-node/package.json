@@ -1,6 +1,6 @@
 {
   "name": "@anonymask/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Secure anonymization/de-anonymization library for PII data",
   "main": "index.js",
   "types": "index.d.ts",
