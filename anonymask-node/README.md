@@ -1,48 +1,87 @@
-# Anonymask Node.js Package
+# `@napi-rs/package-template`
 
-This package provides Node.js bindings for the Anonymask core library, enabling secure anonymization and de-anonymization of PII data.
+![https://github.com/napi-rs/package-template/actions](https://github.com/napi-rs/package-template/workflows/CI/badge.svg)
 
-## Installation
+> Template project for writing node packages with napi-rs.
 
-```bash
-npm install @anonymask/node
-```
+# Usage
 
-## Building from Source
+1. Click **Use this template**.
+2. **Clone** your project.
+3. Run `yarn install` to install dependencies.
+4. Run `yarn napi rename -n [@your-scope/package-name] -b [binary-name]` command under the project folder to rename your package.
 
-1. Ensure you have Rust and Node.js installed.
-2. Clone the repository and navigate to the `anonymask-node` directory.
-3. Install dependencies:
-
-```bash
-npm install
-```
-
-4. Build the package:
+## Install this test package
 
 ```bash
-npm run build
+yarn add @napi-rs/package-template
 ```
 
-This will compile the Rust code and generate the native Node.js module.
+## Ability
 
-## Usage
+### Build
 
-```javascript
-const { Anonymizer } = require('@anonymask/node');
+After `yarn build/npm run build` command, you can see `package-template.[darwin|win32|linux].node` file in project root. This is the native addon built from [lib.rs](./src/lib.rs).
 
-const anonymizer = new Anonymizer(['email', 'phone']);
-const result = anonymizer.anonymize('Contact john@email.com or call 555-123-4567');
+### Test
 
-console.log(result.anonymized_text); // "Contact EMAIL_xxx or call PHONE_xxx"
-console.log(result.mapping); // { "EMAIL_xxx": "john@email.com", "PHONE_xxx": "555-123-4567" }
+With [ava](https://github.com/avajs/ava), run `yarn test/npm run test` to testing native addon. You can also switch to another testing framework if you want.
+
+### CI
+
+With GitHub Actions, each commit and pull request will be built and tested automatically in [`node@20`, `@node22`] x [`macOS`, `Linux`, `Windows`] matrix. You will never be afraid of the native addon broken in these platforms.
+
+### Release
+
+Release native package is very difficult in old days. Native packages may ask developers who use it to install `build toolchain` like `gcc/llvm`, `node-gyp` or something more.
+
+With `GitHub actions`, we can easily prebuild a `binary` for major platforms. And with `N-API`, we should never be afraid of **ABI Compatible**.
+
+The other problem is how to deliver prebuild `binary` to users. Downloading it in `postinstall` script is a common way that most packages do it right now. The problem with this solution is it introduced many other packages to download binary that has not been used by `runtime codes`. The other problem is some users may not easily download the binary from `GitHub/CDN` if they are behind a private network (But in most cases, they have a private NPM mirror).
+
+In this package, we choose a better way to solve this problem. We release different `npm packages` for different platforms. And add it to `optionalDependencies` before releasing the `Major` package to npm.
+
+`NPM` will choose which native package should download from `registry` automatically. You can see [npm](./npm) dir for details. And you can also run `yarn add @napi-rs/package-template` to see how it works.
+
+## Develop requirements
+
+- Install the latest `Rust`
+- Install `Node.js@10+` which fully supported `Node-API`
+- Install `yarn@1.x`
+
+## Test in local
+
+- yarn
+- yarn build
+- yarn test
+
+And you will see:
+
+```bash
+$ ava --verbose
+
+  ✔ sync function from native code
+  ✔ sleep function from native code (201ms)
+  ─
+
+  2 tests passed
+✨  Done in 1.12s.
 ```
 
-## Publishing to npm
+## Release package
 
-1. Ensure you have an npm account and are logged in (`npm login`).
-2. Update the version in `package.json`.
-3. Build the package: `npm run build`.
-4. Publish: `npm publish`.
+Ensure you have set your **NPM_TOKEN** in the `GitHub` project setting.
 
-Note: The package will automatically build before publishing due to the `prepublishOnly` script.
+In `Settings -> Secrets`, add **NPM_TOKEN** into it.
+
+When you want to release the package:
+
+```bash
+npm version [<newversion> | major | minor | patch | premajor | preminor | prepatch | prerelease [--preid=<prerelease-id>] | from-git]
+
+git push
+```
+
+GitHub actions will do the rest job for you.
+
+> WARN: Don't run `npm publish` manually.
