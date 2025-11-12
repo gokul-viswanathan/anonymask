@@ -1,7 +1,7 @@
 [package]
 name = "anonymask-node"
-version = "0.1.1"
-edition = "2021"
+version = "0.1.4"
+edition = "2025"
 description = "Node.js bindings for anonymask-core"
 license = "MIT"
 authors = ["Gokul Viswanathan <gokul@example.com>"]

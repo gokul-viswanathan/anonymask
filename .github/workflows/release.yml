@@ -1,8 +1,8 @@
 name: Release
-
 on:
   push:
     branches: [release]
+  workflow_dispatch:
 
 jobs:
   release-python:
@@ -10,39 +10,142 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+
       - name: Create virtual environment
         run: |
           python -m venv .venv
           source .venv/bin/activate
           echo "VIRTUAL_ENV=$VIRTUAL_ENV" >> $GITHUB_ENV
           echo "$VIRTUAL_ENV/bin" >> $GITHUB_PATH
+
       - name: Install dependencies
         run: pip install maturin twine
+
       - name: Build Python package
         run: cd anonymask-py && maturin build --release --sdist
+
       - name: Publish to PyPI
         run: twine upload anonymask-py/target/wheels/* --username __token__ --password ${{ secrets.PYPI_API_TOKEN }}
 
-  release-node:
+  build-node:
     needs: release-python
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - host: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+
+          - host: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            setup: |
+              sudo apt-get update
+              sudo apt-get install -y gcc-aarch64-linux-gnu
+
+          - host: macos-latest
+            target: x86_64-apple-darwin
+
+          - host: macos-latest
+            target: aarch64-apple-darwin
+
+          - host: windows-latest
+            target: x86_64-pc-windows-msvc
+
+    name: Build Node.js - ${{ matrix.settings.target }}
+    runs-on: ${{ matrix.settings.host }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org/"
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.settings.target }}
+
+      - name: Setup cross-compilation
+        if: ${{ matrix.settings.setup }}
+        run: ${{ matrix.settings.setup }}
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            anonymask-node/target
+          key: ${{ matrix.settings.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install dependencies
+        run: cd anonymask-node && npm ci
+
+      - name: Build for target
+        run: cd anonymask-node && npm run build -- --target ${{ matrix.settings.target }}
+
+      - name: List build output
+        shell: bash
+        run: ls -R anonymask-node/
+
+      - name: Publish platform package
+        shell: bash
+        run: |
+          cd anonymask-node
+          if [ -d "npm" ]; then
+            for dir in npm/*/; do
+              if [ -f "${dir}package.json" ]; then
+                echo "Publishing from $dir"
+                cd "$dir"
+                npm publish --access public 2>&1 || echo "Already published or failed"
+                cd ../..
+              fi
+            done
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-node-main:
+    needs: build-node
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "20"
           registry-url: "https://registry.npmjs.org/"
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List artifacts
+        run: ls -R artifacts
+
+      - name: Move artifacts to package
+        run: |
+          mkdir -p anonymask-node/npm
+          if [ -d "artifacts" ]; then
+            cp -r artifacts/bindings-*/* anonymask-node/npm/ || echo "No bindings to copy"
+          fi
+
       - name: Install dependencies
         run: cd anonymask-node && npm ci
-      - name: Build Node.js package
-        run: cd anonymask-node && npm run build
-      - name: Publish to npm
+
+      - name: Publish main package
         run: cd anonymask-node && npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
