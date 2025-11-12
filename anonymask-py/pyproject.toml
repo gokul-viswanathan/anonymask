@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "anonymask"
-version = "0.1.2"
+version = "0.1.3"
 description = "Secure anonymization/de-anonymization library for PII data"
 license = { text = "MIT" }
 authors = [
@@ -46,7 +46,14 @@ manifest-path = "./Cargo.toml"
 python-source = "python"
 module-name = "anonymask._anonymask"
 sdist = true
-
-[tool.setuptools]
-include = ["LICENSE", "README.md"]
+# Only include what you need
+include = [
+    "LICENSE",
+    "README.md",
+    "python/anonymask/**/*.py",
+    "src/**/*.rs",
+    "Cargo.toml",
+    "Cargo.lock",
+    "pyproject.toml",
+]
 
