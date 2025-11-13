@@ -63,6 +63,7 @@
     "version": "napi version"
   },
   "devDependencies": {
+    "@napi-rs/cli": "^2.18.0",
     "@emnapi/core": "^1.5.0",
     "@emnapi/runtime": "^1.5.0",
     "@tybys/wasm-util": "^0.10.0",

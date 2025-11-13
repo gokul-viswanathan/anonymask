@@ -12,11 +12,11 @@ crate-type = ["cdylib"]
 
 [dependencies]
 anonymask-core = { path = "../anonymask-core" }
-napi = "3.0.0"
-napi-derive = "3.0.0"
+napi = { version = "2.16", features = ["serde-json"] }
+napi-derive = "2.16"
 
 [build-dependencies]
-napi-build = "2"
+napi-build = "2.1"
 
 [profile.release]
 lto = true
