@@ -16,3 +16,6 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.swp
+
+# Node.js
+anonymask-node/node_modules/
