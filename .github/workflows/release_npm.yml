@@ -194,10 +194,7 @@ jobs:
           " >> $GITHUB_OUTPUT
           echo "IMAGE=node:${{ matrix.node }}-slim" >> $GITHUB_OUTPUT
       - name: Install dependencies
-        run: |
-          npm config set --json supportedArchitectures.cpu '["current", "arm64", "x64"]'
-          npm config set --json supportedArchitectures.libc '["current", "gnu"]'
-          npm ci
+        run: npm ci
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:

@@ -66,5 +66,12 @@
     "prettier": "^3.6.2",
     "tinybench": "^5.0.1",
     "typescript": "^5.9.2"
+  },
+  "optionalDependencies": {
+    "@anonymask/core-win32-x64-msvc": "0.2.1",
+    "@anonymask/core-darwin-x64": "0.2.1",
+    "@anonymask/core-linux-x64-gnu": "0.2.1",
+    "@anonymask/core-linux-arm64-gnu": "0.2.1",
+    "@anonymask/core-darwin-arm64": "0.2.1"
   }
 }
