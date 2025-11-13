@@ -19,3 +19,4 @@ Thumbs.db
 
 # Node.js
 anonymask-node/node_modules/
+anonymask-node/node_modules/anonymask.*.node
