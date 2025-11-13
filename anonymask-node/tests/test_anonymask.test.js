@@ -3,7 +3,7 @@
  * Integration tests for anonymask Node.js bindings.
  */
 
-const { Anonymizer } = require("../anonymask.*.node");
+const { Anonymizer } = require("../index.js");
 
 describe("Anonymizer", () => {
   let anonymizer;
