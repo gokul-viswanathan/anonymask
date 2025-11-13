@@ -1,6 +1,6 @@
 [package]
 name = "anonymask-node"
-version = "0.1.4"
+version = "0.2.1"
 edition = "2021"
 description = "Node.js bindings for anonymask-core"
 license = "MIT"
