@@ -1,0 +1,33 @@
+name: Release
+on:
+  push:
+    branches: [release]
+  workflow_dispatch:
+
+jobs:
+  release-python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Create virtual environment
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          echo "VIRTUAL_ENV=$VIRTUAL_ENV" >> $GITHUB_ENV
+          echo "$VIRTUAL_ENV/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: pip install maturin twine
+
+      - name: Build Python package
+        run: cd anonymask-py && maturin build --release --sdist
+
+      - name: Publish to PyPI
+        run: twine upload anonymask-py/target/wheels/* --username __token__ --password ${{ secrets.PYPI_API_TOKEN }}

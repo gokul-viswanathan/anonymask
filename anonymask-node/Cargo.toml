@@ -4,7 +4,7 @@ version = "0.1.4"
 edition = "2021"
 description = "Node.js bindings for anonymask-core"
 license = "MIT"
-authors = ["Gokul Viswanathan <gokul@example.com>"]
+authors = ["Gokul Viswanathan <gokulviswanathan25@gmail.com>"]
 
 [lib]
 name = "anonymask_node"
@@ -17,3 +17,7 @@ napi-derive = "2.16"
 
 [build-dependencies]
 napi-build = "2.1"
+
+[profile.release]
+lto = true
+strip = "symbols"
