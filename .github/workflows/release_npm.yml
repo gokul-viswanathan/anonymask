@@ -1,7 +1,7 @@
 name: NPM_release
 env:
   DEBUG: napi:*
-  APP_NAME: cool
+  APP_NAME: anonymask
   MACOSX_DEPLOYMENT_TARGET: "10.13"
   CARGO_INCREMENTAL: "1"
 
@@ -100,12 +100,21 @@ jobs:
       - name: Build
         run: ${{ matrix.settings.build }}
         shell: bash
+      - name: Debug - List files
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Files in current directory:"
+          ls -la
+          echo "Looking for .node files:"
+          find . -name "*.node"
+        shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: bindings-${{ matrix.settings.target }}
           path: |
-            anonymask-node/${{ env.APP_NAME }}.*.node
+            ${{ env.APP_NAME }}.*.node
           if-no-files-found: error
 
   test-macOS-windows-binding:
@@ -141,7 +150,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Download artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v4
         with:
           name: bindings-${{ matrix.settings.target }}
           path: anonymask-node
@@ -190,7 +199,7 @@ jobs:
           npm config set --json supportedArchitectures.libc '["current", "gnu"]'
           npm ci
       - name: Download artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v4
         with:
           name: bindings-${{ matrix.target }}
           path: anonymask-node
@@ -227,7 +236,7 @@ jobs:
       - name: create npm dirs
         run: npx napi create-npm-dirs
       - name: Download all artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v4
         with:
           path: anonymask-node/artifacts
       - name: Move artifacts
