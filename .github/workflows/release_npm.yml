@@ -246,16 +246,3 @@ jobs:
         run: npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Publish platform packages
-        shell: bash
-        run: |
-          for dir in npm/*/; do
-            if [ -d "$dir" ]; then
-              echo "Publishing $(basename $dir)"
-              cd "$dir"
-              npm publish --access public --provenance
-              cd ../..
-            fi
-          done
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
