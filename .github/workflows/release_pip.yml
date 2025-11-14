@@ -1,4 +1,4 @@
-name: Release
+name: PY_Release
 on:
   push:
     branches: [release]
