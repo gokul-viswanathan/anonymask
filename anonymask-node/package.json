@@ -1,6 +1,6 @@
 {
   "name": "@anonymask/core",
-  "version": "0.1.4",
+  "version": "0.3.1",
   "description": "Secure anonymization/de-anonymization library for PII data",
   "main": "index.js",
   "types": "index.d.ts",
@@ -31,15 +31,8 @@
       "x86_64-pc-windows-msvc",
       "x86_64-apple-darwin",
       "x86_64-unknown-linux-gnu",
-      "x86_64-unknown-linux-musl",
       "aarch64-unknown-linux-gnu",
-      "i686-pc-windows-msvc",
-      "armv7-unknown-linux-gnueabihf",
-      "aarch64-apple-darwin",
-      "aarch64-linux-android",
-      "x86_64-unknown-freebsd",
-      "aarch64-unknown-linux-musl",
-      "aarch64-pc-windows-msvc"
+      "aarch64-apple-darwin"
     ]
   },
   "engines": {
@@ -73,5 +66,12 @@
     "prettier": "^3.6.2",
     "tinybench": "^5.0.1",
     "typescript": "^5.9.2"
+  },
+  "optionalDependencies": {
+    "@anonymask/core-win32-x64-msvc": "0.2.1",
+    "@anonymask/core-darwin-x64": "0.2.1",
+    "@anonymask/core-linux-x64-gnu": "0.2.1",
+    "@anonymask/core-linux-arm64-gnu": "0.2.1",
+    "@anonymask/core-darwin-arm64": "0.2.1"
   }
 }
