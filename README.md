@@ -1,16 +1,18 @@
 # anonymask
 
-Secure anonymization/de-anonymization library for protecting Personally Identifiable Information (PII) before sending data to Large Language Models (LLMs).
+Secure anonymization/de-anonymization library for protecting Personally Identifiable Information (PII) before sending data to Large Language Models (LLMs). Built with Rust for performance and safety, with bindings for Python and Node.js.
 
-## Features
+## ✨ Features
 
-- **Fast regex-based entity detection** for EMAIL, PHONE, SSN, CREDIT_CARD, IP_ADDRESS, URL
-- **Deterministic UUID-based placeholders** for consistent anonymization
-- **Multi-language bindings** for Python and Node.js
-- **Zero-copy deanonymization** for performance
-- **Comprehensive error handling** and edge case support
+- **🚀 High Performance**: Rust-powered core with < 5ms processing time for typical messages
+- **🔍 Comprehensive Detection**: Regex-based entity detection for EMAIL, PHONE, SSN, CREDIT_CARD, IP_ADDRESS, URL
+- **🔒 Secure Placeholders**: Deterministic UUID-based placeholders for consistent anonymization
+- **🌐 Multi-Language**: Native bindings for Python and Node.js with identical APIs
+- **⚡ Zero-Copy Deanonymization**: Efficient restoration of original values
+- **🛡️ Robust Error Handling**: Comprehensive error handling and edge case support
+- **🧵 Thread-Safe**: Concurrent access supported
 
-## Installation
+## 📦 Installation
 
 ### Python
 
@@ -21,92 +23,211 @@ pip install anonymask
 ### Node.js
 
 ```bash
-npm install @anonymask/node
+npm install @anonymask/core
 ```
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Python
 
 ```python
 from anonymask import Anonymizer
 
-# Initialize
-anonymizer = Anonymizer(['email', 'phone'])
+# Initialize anonymizer with desired entity types
+anonymizer = Anonymizer(['email', 'phone', 'ssn'])
 
-# Anonymize
-result = anonymizer.anonymize("Contact john@email.com or 555-1234")
-print(result[0])  # "Contact EMAIL_abc123 or 555-1234"
+# Anonymize text
+text = "Contact john@email.com or call 555-123-4567. SSN: 123-45-6789"
+result = anonymizer.anonymize(text)
 
-# Deanonymize
+# Result is a tuple: (anonymized_text, mapping, entities)
+print(result[0])  # "Contact EMAIL_xxx or call PHONE_xxx. SSN: SSN_xxx"
+print(result[1])  # {'EMAIL_xxx': 'john@email.com', 'PHONE_xxx': '555-123-4567', 'SSN_xxx': '123-45-6789'}
+print(result[2])  # List of detected entities with metadata
+
+# Deanonymize back to original
 original = anonymizer.deanonymize(result[0], result[1])
-print(original)  # "Contact john@email.com or 555-1234"
+print(original)  # "Contact john@email.com or call 555-123-4567. SSN: 123-45-6789"
 ```
 
 ### Node.js
 
 ```javascript
-const { Anonymizer } = require("@anonymask/node");
+const { Anonymizer } = require("@anonymask/core");
 
-const anonymizer = new Anonymizer(["email", "phone"]);
-const result = anonymizer.anonymize("Contact john@email.com or 555-1234");
-console.log(result.anonymized_text); // "Contact EMAIL_abc123 or 555-1234"
+// Initialize anonymizer with desired entity types
+const anonymizer = new Anonymizer(["email", "phone", "ssn"]);
 
+// Anonymize text
+const text = "Contact john@email.com or call 555-123-4567. SSN: 123-45-6789";
+const result = anonymizer.anonymize(text);
+
+// Result is an object: { anonymized_text, mapping, entities }
+console.log(result.anonymizedText); // "Contact EMAIL_xxx or call PHONE_xxx. SSN: SSN_xxx"
+console.log(result.mapping); // { EMAIL_xxx: 'john@email.com', PHONE_xxx: '555-123-4567', SSN_xxx: '123-45-6789' }
+console.log(result.entities); // Array of detected entities with metadata
+
+// Deanonymize back to original
 const original = anonymizer.deanonymize(result.anonymized_text, result.mapping);
-console.log(original); // "Contact john@email.com or 555-1234"
+console.log(original); // "Contact john@email.com or call 555-123-4567. SSN: 123-45-6789"
 ```
 
-## Supported Entity Types
+## 🎯 Supported Entity Types
 
-- `email` - Email addresses (e.g., user@domain.com)
-- `phone` - Phone numbers (e.g., 555-123-4567, 555-1234)
-- `ssn` - Social Security Numbers (e.g., 123-45-6789)
-- `credit_card` - Credit card numbers (e.g., 1234-5678-9012-3456)
-- `ip_address` - IP addresses (e.g., 192.168.1.1)
-- `url` - URLs (e.g., https://example.com)
+| Entity Type   | Description             | Examples                                                       |
+| ------------- | ----------------------- | -------------------------------------------------------------- |
+| `email`       | Email addresses         | `user@domain.com`, `john.doe@company.co.uk`                    |
+| `phone`       | Phone numbers           | `555-123-4567`, `(555) 123-4567`, `555.123.4567`, `5551234567` |
+| `ssn`         | Social Security Numbers | `123-45-6789`, `123456789`                                     |
+| `credit_card` | Credit card numbers     | `1234-5678-9012-3456`, `1234567890123456`                      |
+| `ip_address`  | IP addresses            | `192.168.1.1`, `2001:0db8:85a3:0000:0000:8a2e:0370:7334`       |
+| `url`         | URLs                    | `https://example.com`, `http://sub.domain.org/path`            |
 
-## Architecture
+## 🏗️ Architecture
 
-anonymask is built with Rust for performance and safety:
+anonymask is built with a layered architecture for performance and safety:
 
 ```
-User Input → Entity Detection → Placeholder Generation → Anonymized Output
-                                       ↓
-LLM Processing ← Deanonymization ← Placeholder Matching
+┌─────────────────────────────────────────────────────────────┐
+│                    Language Bindings                        │
+│  ┌─────────────────┐    ┌─────────────────────────────────┐ │
+│  │   Python        │    │      Node.js                     │ │
+│  │   (PyO3)        │    │      (NAPI-RS)                   │ │
+│  └─────────────────┘    └─────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+                              │
+┌─────────────────────────────────────────────────────────────┐
+│                      Core Library                           │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
+│  │ Entity Detection│  │  Anonymization  │  │Deanonymization│ │
+│  │   (Regex)       │  │  (UUID Mapping) │  │ (Zero-Copy)   │ │
+│  └─────────────────┘  └─────────────────┘  └──────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+                              │
+┌─────────────────────────────────────────────────────────────┐
+│                    Rust Foundation                          │
+│           Performance, Memory Safety, Concurrency           │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### Core Components
 
-1. **Entity Detection**: Regex-based pattern matching for structured data
-2. **Anonymization**: Replace detected entities with unique placeholders
-3. **Deanonymization**: Restore original values using stored mappings
+1. **Entity Detection**: Fast regex-based pattern matching for structured PII data
+2. **Anonymization**: Replace detected entities with unique, deterministic placeholders
+3. **Deanonymization**: Restore original values using efficient placeholder-to-value mapping
 
-## Performance
+## 📊 Performance
 
-- **Typical message (< 500 words)**: < 5ms processing time
-- **Memory efficient**: No external dependencies for core functionality
-- **Thread-safe**: Concurrent access supported
+- **Processing Speed**: < 5ms for typical messages (< 500 words)
+- **Memory Efficiency**: Minimal memory footprint with no external dependencies
+- **Concurrency**: Thread-safe design for parallel processing
+- **Deterministic**: Same input always produces same output for consistency
 
-## Security
+## 🔒 Security Features
 
-- **Deterministic placeholders**: Same input always produces same output
-- **Secure UUID generation**: Cryptographically secure random IDs
-- **Input validation**: Comprehensive error handling for malformed data
+- **Cryptographically Secure**: UUID v4 generation for unique placeholders
+- **Deterministic Mapping**: Consistent placeholder generation across sessions
+- **Input Validation**: Comprehensive validation and sanitization
+- **No Data Leakage**: Secure handling of sensitive information
+- **Zero-Trust Design**: No logging or exposure of PII data
 
-## Examples
+## 📚 API Reference
 
-See the `examples/` directory for complete usage examples:
+### Python API
 
-- **Python**: Basic usage and RAG integration
-- **Node.js**: Basic usage and Express middleware
+```python
+from anonymask import Anonymizer
 
-## Development
+# Initialize
+anonymizer = Anonymizer(entity_types=['email', 'phone'])
+
+# Anonymize
+result = anonymizer.anonymize(text)
+# Returns: (anonymized_text: str, mapping: dict, entities: list)
+
+# Deanonymize
+original = anonymizer.deanonymize(anonymized_text, mapping)
+# Returns: str
+```
+
+### Node.js API
+
+```javascript
+const { Anonymizer } = require("@anonymask/core");
+
+// Initialize
+const anonymizer = new Anonymizer(["email", "phone"]);
+
+// Anonymize
+const result = anonymizer.anonymize(text);
+// Returns: { anonymized_text: string, mapping: object, entities: array }
+
+// Deanonymize
+const original = anonymizer.deanonymize(anonymized_text, mapping);
+// Returns: string
+```
+
+## 💡 Use Cases
+
+### RAG Applications
+
+```python
+# Protect user data before sending to vector stores
+anonymizer = Anonymizer(['email', 'phone', 'ssn'])
+safe_document = anonymizer.anonymize(user_document)[0]
+# Store safe_document in vector database
+```
+
+### LLM Chat Applications
+
+```javascript
+// Anonymize user messages before sending to LLM
+const anonymizer = new Anonymizer(["email", "phone", "ssn", "credit_card"]);
+const safeMessage = anonymizer.anonymize(userMessage);
+// Send safeMessage.anonymized_text to LLM
+```
+
+### Data Processing Pipelines
+
+```python
+# Batch processing with anonymization
+anonymizer = Anonymizer(['email', 'phone'])
+for record in dataset:
+    safe_record = anonymizer.anonymize(record.text)[0]
+    # Process safe_record
+```
+
+## 🧪 Testing
+
+### Python
+
+```bash
+cd anonymask-py
+pytest tests/test_anonymask.py -v
+```
+
+### Node.js
+
+```bash
+cd anonymask-node
+npm test
+```
+
+### Rust Core
+
+```bash
+cd anonymask-core
+cargo test
+cargo bench  # Performance benchmarks
+```
+
+## 🔧 Development
 
 ### Building from Source
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/anonymask.git
+git clone https://github.com/gokul-viswanathan/anonymask.git
 cd anonymask
 
 # Build Rust core library
@@ -119,32 +240,63 @@ maturin develop
 
 # Build Node.js bindings
 cd ../anonymask-node
+npm install
 npm run build
 ```
 
-### Running Tests
+### Project Structure
 
-```bash
-cargo test                    # Unit tests
-cargo bench                   # Benchmarks
+```
+anonymask/
+├── anonymask-core/          # Rust core library
+│   ├── src/
+│   │   ├── anonymizer.rs    # Main anonymization logic
+│   │   ├── detection.rs     # Entity detection patterns
+│   │   ├── entity.rs        # Entity types and structures
+│   │   └── error.rs         # Error handling
+│   └── Cargo.toml
+├── anonymask-py/            # Python bindings
+│   ├── src/lib.rs          # PyO3 bindings
+│   ├── python/anonymask/   # Python package
+│   └── pyproject.toml
+├── anonymask-node/         # Node.js bindings
+│   ├── src/lib.rs          # NAPI-RS bindings
+│   ├── index.js            # JavaScript interface
+│   └── package.json
+└── examples/               # Usage examples
+    ├── python/
+    └── node/
 ```
 
-## License
+## 📄 License
 
-MIT License - see LICENSE file for details.
+MIT License - see [LICENSE](LICENSE) file for details.
 
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
+4. Ensure all tests pass (`cargo test && npm test && pytest`)
+5. Follow the existing code style and conventions
+6. Submit a pull request
 
-## Roadmap:
+## 🗺️ Roadmap
 
-- [ ] NER-based entity detection (PERSON, ORG, LOCATION)
-- [ ] Custom regex patterns
-- [ ] Custom Text matching.
-- [ ] External storage backends
-- [ ] Additional language bindings (Go, Java, C#)
+- [ ] **NER-based Detection**: Named Entity Recognition for PERSON, ORG, LOCATION
+- [ ] **Custom Patterns**: User-defined regex patterns
+- [ ] **External Storage**: Database backends for mapping persistence
+- [ ] **More Languages**: Go, Java, C# bindings
+- [ ] **Performance Mode**: Optimized batch processing
+- [ ] **Fuzzy Matching**: Advanced entity detection with ML
+- [ ] **Audit Logging**: Secure audit trail capabilities
+
+## 📞 Support
+
+- 📖 [Documentation](https://github.com/gokul-viswanathan/anonymask#readme)
+- 🐛 [Issue Tracker](https://github.com/gokul-viswanathan/anonymask/issues)
+- 💬 [Discussions](https://github.com/gokul-viswanathan/anonymask/discussions)
+
+---
+
+**Version**: 0.4.5 | **Built with ❤️ using Rust**
