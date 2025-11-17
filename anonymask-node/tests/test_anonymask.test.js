@@ -77,6 +77,57 @@ describe("Anonymizer", () => {
     expect(emailPlaceholders).toHaveLength(1);
     expect(result.entities).toHaveLength(2); // Two detections
   });
+
+  test("anonymizes phone short format", () => {
+    const text = "Call 555-123";
+    const result = anonymizer.anonymize(text);
+
+    expect(result.anonymizedText).toContain("PHONE_");
+    expect(result.entities).toHaveLength(1);
+    expect(result.entities[0].entityType).toBe("phone");
+  });
+
+  test("anonymizes phone multiple formats", () => {
+    const text = "Call 555-123-4567 or 555-123";
+    const result = anonymizer.anonymize(text);
+
+    expect(result.anonymizedText).toContain("PHONE_");
+    expect(result.entities).toHaveLength(2);
+  });
+
+  test("anonymizes with custom entities", () => {
+    const customEntities = {
+      phone: ["555-999-0000"],
+      email: ["custom@example.com"]
+    };
+    const result = anonymizer.anonymizeWithCustom("Contact custom@example.com or call 555-999-0000", customEntities);
+
+    expect(result.anonymizedText).toContain("EMAIL_");
+    expect(result.anonymizedText).toContain("PHONE_");
+    expect(result.entities).toHaveLength(2);
+  });
+
+  test("anonymizes custom entities only", () => {
+    const anonymizer = new Anonymizer([]);
+    const customEntities = {
+      email: ["secret@company.com"]
+    };
+    const result = anonymizer.anonymizeWithCustom("Send to secret@company.com", customEntities);
+
+    expect(result.anonymizedText).toContain("EMAIL_");
+    expect(result.entities).toHaveLength(1);
+    expect(result.entities[0].value).toBe("secret@company.com");
+  });
+
+  test("backward compatibility", () => {
+    const text = "Contact john@email.com";
+    const result1 = anonymizer.anonymize(text);
+    const result2 = anonymizer.anonymizeWithCustom(text, null);
+
+    expect(result1.anonymizedText).toContain("EMAIL_");
+    expect(result2.anonymizedText).toContain("EMAIL_");
+    expect(result1.entities.length).toBe(result2.entities.length);
+  });
 });
 
 // Run tests if this file is executed directly

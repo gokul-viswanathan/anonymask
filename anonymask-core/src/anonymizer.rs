@@ -18,6 +18,10 @@ impl Anonymizer {
     }
 
     pub fn anonymize(&self, text: &str) -> Result<AnonymizationResult, AnonymaskError> {
+        self.anonymize_with_custom(text, None)
+    }
+
+    pub fn anonymize_with_custom(&self, text: &str, custom_entities: Option<&std::collections::HashMap<EntityType, Vec<String>>>) -> Result<AnonymizationResult, AnonymaskError> {
         if text.is_empty() {
             return Ok(AnonymizationResult {
                 anonymized_text: String::new(),
@@ -26,7 +30,7 @@ impl Anonymizer {
             });
         }
 
-        let entities = self.detector.detect(text);
+        let entities = self.detector.detect(text, custom_entities);
 
         let mut placeholder_to_original = HashMap::new();
         let mut anonymized_text = text.to_string();

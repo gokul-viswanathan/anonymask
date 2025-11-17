@@ -59,7 +59,7 @@ print(original)
 | Type | Description | Examples |
 |------|-------------|----------|
 | `email` | Email addresses | `user@domain.com`, `john.doe@company.co.uk` |
-| `phone` | Phone numbers | `555-123-4567`, `(555) 123-4567`, `555.123.4567` |
+| `phone` | Phone numbers | `555-123-4567`, `555-123`, `(555) 123-4567`, `555.123.4567` |
 | `ssn` | Social Security Numbers | `123-45-6789`, `123456789` |
 | `credit_card` | Credit card numbers | `1234-5678-9012-3456`, `1234567890123456` |
 | `ip_address` | IP addresses | `192.168.1.1`, `2001:0db8:85a3::8a2e:0370:7334` |
@@ -79,7 +79,7 @@ anonymizer = Anonymizer(entity_types: List[str])
 
 #### `anonymize(text: str) -> Tuple[str, Dict[str, str], List[Dict]]`
 
-Anonymizes the input text and returns detailed result.
+Anonymizes the input text using automatic detection and returns detailed result.
 
 **Returns:**
 - `str`: Text with PII replaced by placeholders
@@ -91,6 +91,24 @@ Each entity dictionary contains:
 - `value`: Original detected value
 - `start`: Start position in original text
 - `end`: End position in original text
+
+#### `anonymize_with_custom(text: str, custom_entities: Optional[Dict[str, List[str]]] = None) -> Tuple[str, Dict[str, str], List[Dict]]`
+
+Anonymizes the input text using both automatic detection and custom entities.
+
+**Parameters:**
+- `text`: The input text to anonymize
+- `custom_entities`: Optional dictionary mapping entity types to lists of custom values
+
+**Example:**
+```python
+custom_entities = {
+    "email": ["secret@company.com", "admin@internal.org"],
+    "phone": ["555-999-0000"]
+}
+
+result = anonymizer.anonymize_with_custom(text, custom_entities)
+```
 
 #### `deanonymize(text: str, mapping: Dict[str, str]) -> str`
 
@@ -240,14 +258,17 @@ class SecureLLMClient:
         self.client = openai.OpenAI(api_key=api_key)
         self.anonymizer = Anonymizer(['email', 'phone', 'ssn', 'credit_card'])
     
-    def secure_chat_completion(self, messages: list) -> str:
+    def secure_chat_completion(self, messages: list, custom_entities: dict = None) -> str:
         # Anonymize all user messages
         anonymized_messages = []
         mappings = []
         
         for message in messages:
             if message['role'] == 'user':
-                result = self.anonymizer.anonymize(message['content'])
+                if custom_entities:
+                    result = self.anonymizer.anonymize_with_custom(message['content'], custom_entities)
+                else:
+                    result = self.anonymizer.anonymize(message['content'])
                 anonymized_messages.append({
                     'role': 'user',
                     'content': result[0]
@@ -271,6 +292,32 @@ class SecureLLMClient:
             safe_response = llm_response
         
         return safe_response
+```
+
+### Custom Entity Anonymization
+
+```python
+from anonymask import Anonymizer
+
+# Initialize with basic detection
+anonymizer = Anonymizer(['email'])
+
+# Define custom entities to anonymize
+custom_entities = {
+    'email': ['internal@company.com', 'admin@secure.org'],
+    'phone': ['555-999-0000', '555-888-1111'],
+    # You can even specify entity types not in the initial list
+    'ssn': ['123-45-6789']
+}
+
+text = "Contact internal@company.com or call 555-999-0000"
+result = anonymizer.anonymize_with_custom(text, custom_entities)
+
+print(result[0])
+# "Contact EMAIL_xxx or call PHONE_xxx"
+
+print(result[1])
+# {'EMAIL_xxx': 'internal@company.com', 'PHONE_xxx': '555-999-0000'}
 ```
 
 ## 🧪 Testing
