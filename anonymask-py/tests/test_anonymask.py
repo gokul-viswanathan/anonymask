@@ -110,6 +110,19 @@ class TestAnonymizer:
         assert "EMAIL_" in result2[0]
         assert len(result1[2]) == len(result2[2])
 
+    def test_custom_entity_types(self):
+        anonymizer = Anonymizer([])
+        custom_entities = {"name": ["John Doe"], "company": ["Acme Corp"]}
+        result = anonymizer.anonymize_with_custom("John Doe works at Acme Corp", custom_entities)
+
+        assert "NAME_" in result[0]
+        assert "COMPANY_" in result[0]
+        assert len(result[2]) == 2
+        assert result[2][0].entity_type == "name"
+        assert result[2][0].value == "John Doe"
+        assert result[2][1].entity_type == "company"
+        assert result[2][1].value == "Acme Corp"
+
 
 if __name__ == "__main__":
     pytest.main([__file__])
