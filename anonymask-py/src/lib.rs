@@ -41,7 +41,10 @@ impl Anonymizer {
             .entities
             .into_iter()
             .map(|e| PyEntity {
-                entity_type: format!("{:?}", e.entity_type).to_lowercase(),
+                entity_type: match &e.entity_type {
+                    EntityType::Custom(name) => name.clone(),
+                    _ => format!("{:?}", e.entity_type).to_lowercase(),
+                },
                 value: e.value,
                 start: e.start,
                 end: e.end,
@@ -82,7 +85,10 @@ impl Anonymizer {
             .entities
             .into_iter()
             .map(|e| PyEntity {
-                entity_type: format!("{:?}", e.entity_type).to_lowercase(),
+                entity_type: match &e.entity_type {
+                    EntityType::Custom(name) => name.clone(),
+                    _ => format!("{:?}", e.entity_type).to_lowercase(),
+                },
                 value: e.value,
                 start: e.start,
                 end: e.end,

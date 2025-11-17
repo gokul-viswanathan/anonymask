@@ -95,7 +95,8 @@ mod tests {
     #[test]
     fn test_invalid_entity_type() {
         let result = EntityType::from_str("invalid");
-        assert!(result.is_err());
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), EntityType::Custom("invalid".to_string()));
     }
 
     #[test]
@@ -157,6 +158,22 @@ mod tests {
         assert_eq!(result1.mapping.len(), result2.mapping.len());
         assert_eq!(result1.entities[0].entity_type, result2.entities[0].entity_type);
         assert_eq!(result1.entities[0].value, result2.entities[0].value);
+    }
+
+    #[test]
+    fn test_custom_entity_type() {
+        let anonymizer = Anonymizer::new(vec![]).unwrap();
+        let mut custom_entities = std::collections::HashMap::new();
+        custom_entities.insert(EntityType::Custom("name".to_string()), vec!["John Doe".to_string()]);
+        
+        let result = anonymizer
+            .anonymize_with_custom("My name is John Doe", Some(&custom_entities))
+            .unwrap();
+        
+        assert!(result.anonymized_text.contains("NAME_"));
+        assert_eq!(result.entities.len(), 1);
+        assert_eq!(result.entities[0].entity_type, EntityType::Custom("name".to_string()));
+        assert_eq!(result.entities[0].value, "John Doe");
     }
 }
 
