@@ -29,6 +29,30 @@ mod tests {
     }
 
     #[test]
+    fn test_anonymize_phone_short_format() {
+        let anonymizer = Anonymizer::new(vec![EntityType::Phone]).unwrap();
+        let result = anonymizer.anonymize("Call 555-123").unwrap();
+        assert!(result.anonymized_text.contains("PHONE_"));
+        assert_eq!(result.entities.len(), 1);
+    }
+
+    #[test]
+    fn test_anonymize_phone_multiple_formats() {
+        let anonymizer = Anonymizer::new(vec![EntityType::Phone]).unwrap();
+        let result = anonymizer.anonymize("Call 555-123-4567 or 555-123").unwrap();
+        assert!(result.anonymized_text.contains("PHONE_"));
+        assert_eq!(result.entities.len(), 2);
+    }
+
+    #[test]
+    fn test_anonymize_phone_with_dots() {
+        let anonymizer = Anonymizer::new(vec![EntityType::Phone]).unwrap();
+        let result = anonymizer.anonymize("Call 555.123.4567 or 555.123").unwrap();
+        assert!(result.anonymized_text.contains("PHONE_"));
+        assert_eq!(result.entities.len(), 2);
+    }
+
+    #[test]
     fn test_anonymize_multiple_entities() {
         let anonymizer = Anonymizer::new(vec![EntityType::Email, EntityType::Phone]).unwrap();
         let result = anonymizer
