@@ -237,6 +237,7 @@ cargo build --release
 # Build Python bindings
 cd ../anonymask-py
 maturin develop
+maturin build --release --sdist
 
 # Build Node.js bindings
 cd ../anonymask-node

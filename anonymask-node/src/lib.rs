@@ -65,6 +65,47 @@ impl Anonymizer {
   }
 
   #[napi]
+  pub fn anonymize_with_custom(
+    &self,
+    text: String,
+    custom_entities: Option<HashMap<String, Vec<String>>>,
+  ) -> napi::Result<AnonymizationResult> {
+    // Convert string entity types to EntityType enum
+    let custom_entities = match custom_entities {
+      Some(map) => {
+        let mut converted_map = HashMap::new();
+        for (entity_type_str, values) in map {
+          let entity_type = EntityType::from_str(&entity_type_str)
+            .map_err(|e| napi::Error::from_reason(e.to_string()))?;
+          converted_map.insert(entity_type, values);
+        }
+        Some(converted_map)
+      }
+      None => None,
+    };
+
+    let result = self
+      .inner
+      .anonymize_with_custom(&text, custom_entities.as_ref())
+      .map_err(|e| napi::Error::from_reason(e.to_string()))?;
+
+    Ok(AnonymizationResult {
+      anonymized_text: result.anonymized_text,
+      mapping: result.mapping,
+      entities: result
+        .entities
+        .into_iter()
+        .map(|e| Entity {
+          entity_type: format!("{:?}", e.entity_type).to_lowercase(),
+          value: e.value,
+          start: e.start as u32,
+          end: e.end as u32,
+        })
+        .collect(),
+    })
+  }
+
+  #[napi]
   pub fn deanonymize(&self, text: String, mapping: HashMap<String, String>) -> String {
     self.inner.deanonymize(&text, &mapping)
   }
