@@ -22,7 +22,7 @@ impl EntityDetector {
     fn get_pattern(entity_type: &EntityType) -> Result<Regex, AnonymaskError> {
         let pattern_str = match entity_type {
             EntityType::Email => r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b",
-            EntityType::Phone => r"\b\d{3}[-.]?\d{3}[-.]?\d{4}\b",
+            EntityType::Phone => r"\b\d{3}[-.]?\d{3}(-\d{4})?\b",
             EntityType::Ssn => r"\b\d{3}[-]?\d{2}[-]?\d{4}\b",
             EntityType::CreditCard => r"\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b",
             EntityType::IpAddress => r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b",
@@ -31,9 +31,10 @@ impl EntityDetector {
         Regex::new(pattern_str).map_err(AnonymaskError::RegexError)
     }
 
-    pub fn detect(&self, text: &str) -> Vec<Entity> {
+    pub fn detect(&self, text: &str, custom_entities: Option<&std::collections::HashMap<EntityType, Vec<String>>>) -> Vec<Entity> {
         let mut entities = Vec::new();
 
+        // Detect entities using regex patterns
         for (entity_type, regex) in &self.patterns {
             for mat in regex.find_iter(text) {
                 entities.push(Entity {
@@ -42,6 +43,28 @@ impl EntityDetector {
                     start: mat.start(),
                     end: mat.end(),
                 });
+            }
+        }
+
+        // Detect custom entities
+        if let Some(custom_map) = custom_entities {
+            for (entity_type, values) in custom_map {
+                for value in values {
+                    let mut start = 0;
+                    while let Some(pos) = text[start..].find(value) {
+                        let absolute_start = start + pos;
+                        let absolute_end = absolute_start + value.len();
+                        
+                        entities.push(Entity {
+                            entity_type: entity_type.clone(),
+                            value: value.clone(),
+                            start: absolute_start,
+                            end: absolute_end,
+                        });
+                        
+                        start = absolute_start + 1; // Move past this occurrence
+                    }
+                }
             }
         }
 
@@ -59,4 +82,3 @@ impl EntityDetector {
         filtered
     }
 }
-

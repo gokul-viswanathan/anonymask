@@ -57,7 +57,7 @@ console.log(original);
 | Type          | Description             | Examples                                            |
 | ------------- | ----------------------- | --------------------------------------------------- |
 | `email`       | Email addresses         | `user@domain.com`, `john.doe@company.co.uk`         |
-| `phone`       | Phone numbers           | `555-123-4567`, `(555) 123-4567`, `555.123.4567`    |
+| `phone`       | Phone numbers           | `555-123-4567`, `555-123`, `(555) 123-4567`, `555.123.4567` |
 | `ssn`         | Social Security Numbers | `123-45-6789`, `123456789`                          |
 | `credit_card` | Credit card numbers     | `1234-5678-9012-3456`, `1234567890123456`           |
 | `ip_address`  | IP addresses            | `192.168.1.1`, `2001:0db8:85a3::8a2e:0370:7334`     |
@@ -77,7 +77,7 @@ const anonymizer = new Anonymizer(entityTypes: string[])
 
 #### `anonymize(text: string) => AnonymizationResult`
 
-Anonymizes the input text and returns detailed result.
+Anonymizes the input text using automatic detection and returns detailed result.
 
 **Returns:**
 
@@ -94,6 +94,24 @@ interface Entity {
   start: number; // Start position in original text
   end: number; // End position in original text
 }
+```
+
+#### `anonymizeWithCustom(text: string, customEntities?: Record<string, string[]>) => AnonymizationResult`
+
+Anonymizes the input text using both automatic detection and custom entities.
+
+**Parameters:**
+- `text`: The input text to anonymize
+- `customEntities`: Optional map of entity types to arrays of custom values to anonymize
+
+**Example:**
+```javascript
+const customEntities = {
+  email: ["secret@company.com", "admin@internal.org"],
+  phone: ["555-999-0000"]
+};
+
+const result = anonymizer.anonymizeWithCustom(text, customEntities);
 ```
 
 #### `deanonymize(text: string, mapping: Record<string, string>) => string`
@@ -139,9 +157,11 @@ class SecureLLMClient {
     this.anonymizer = new Anonymizer(["email", "phone", "ssn", "credit_card"]);
   }
 
-  async processMessage(userMessage) {
-    // Anonymize user input
-    const result = this.anonymizer.anonymize(userMessage);
+  async processMessage(userMessage, customEntities = null) {
+    // Anonymize user input with optional custom entities
+    const result = customEntities 
+      ? this.anonymizer.anonymizeWithCustom(userMessage, customEntities)
+      : this.anonymizer.anonymize(userMessage);
 
     // Send anonymized message to LLM
     const llmResponse = await this.callLLM(result.anonymized_text);
@@ -155,6 +175,32 @@ class SecureLLMClient {
     return safeResponse;
   }
 }
+```
+
+### Custom Entity Anonymization
+
+```javascript
+const { Anonymizer } = require("@anonymask/core");
+
+// Initialize with basic detection
+const anonymizer = new Anonymizer(["email"]);
+
+// Define custom entities to anonymize
+const customEntities = {
+  email: ["internal@company.com", "admin@secure.org"],
+  phone: ["555-999-0000", "555-888-1111"],
+  // You can even specify entity types not in the initial list
+  ssn: ["123-45-6789"]
+};
+
+const text = "Contact internal@company.com or call 555-999-0000";
+const result = anonymizer.anonymizeWithCustom(text, customEntities);
+
+console.log(result.anonymizedText);
+// "Contact EMAIL_xxx or call PHONE_xxx"
+
+console.log(result.mapping);
+// { EMAIL_xxx: 'internal@company.com', PHONE_xxx: '555-999-0000' }
 ```
 
 ### Batch Processing

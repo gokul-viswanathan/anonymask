@@ -65,6 +65,51 @@ class TestAnonymizer:
         assert len(email_placeholders) == 1
         assert len(result[2]) == 2  # Two entity detections
 
+    def test_anonymize_phone_short_format(self):
+        text = "Call 555-123"
+        result = self.anonymizer.anonymize(text)
+
+        assert "PHONE_" in result[0]
+        assert len(result[2]) == 1
+
+    def test_anonymize_phone_multiple_formats(self):
+        text = "Call 555-123-4567 or 555-123"
+        result = self.anonymizer.anonymize(text)
+
+        assert "PHONE_" in result[0]
+        assert len(result[2]) == 2
+
+    def test_anonymize_with_custom_entities(self):
+        custom_entities = {"phone": ["555-999-0000"], "email": ["custom@example.com"]}
+        result = self.anonymizer.anonymize_with_custom(
+            "Contact custom@example.com or call 555-999-0000", custom_entities
+        )
+
+        assert "EMAIL_" in result[0]
+        assert "PHONE_" in result[0]
+        assert len(result[2]) == 2
+
+    def test_anonymize_custom_entities_only(self):
+        anonymizer = Anonymizer([])
+        custom_entities = {"email": ["secret@company.com"]}
+        result = anonymizer.anonymize_with_custom(
+            "Send to secret@company.com", custom_entities
+        )
+        print("anonymask custom", result)
+
+        assert "EMAIL_" in result[0]
+        assert len(result[2]) == 1
+        assert result[2][0].value == "secret@company.com"
+
+    def test_backward_compatibility(self):
+        text = "Contact john@email.com"
+        result1 = self.anonymizer.anonymize(text)
+        result2 = self.anonymizer.anonymize_with_custom(text, None)
+
+        assert "EMAIL_" in result1[0]
+        assert "EMAIL_" in result2[0]
+        assert len(result1[2]) == len(result2[2])
+
 
 if __name__ == "__main__":
     pytest.main([__file__])
