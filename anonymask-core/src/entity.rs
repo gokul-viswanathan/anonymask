@@ -9,6 +9,7 @@ pub enum EntityType {
     CreditCard,
     IpAddress,
     Url,
+    Custom(String),
     // NER types to be added later
     // Person,
     // Org,
@@ -24,7 +25,7 @@ impl EntityType {
             "credit_card" => Ok(EntityType::CreditCard),
             "ip_address" => Ok(EntityType::IpAddress),
             "url" => Ok(EntityType::Url),
-            _ => Err(AnonymaskError::InvalidEntityType(s.to_string())),
+            _ => Ok(EntityType::Custom(s.to_string())),
         }
     }
 }

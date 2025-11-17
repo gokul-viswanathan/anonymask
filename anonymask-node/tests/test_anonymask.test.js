@@ -128,6 +128,23 @@ describe("Anonymizer", () => {
     expect(result2.anonymizedText).toContain("EMAIL_");
     expect(result1.entities.length).toBe(result2.entities.length);
   });
+
+  test("custom entity types", () => {
+    const anonymizer = new Anonymizer([]);
+    const customEntities = {
+      name: ["John Doe"],
+      company: ["Acme Corp"]
+    };
+    const result = anonymizer.anonymizeWithCustom("John Doe works at Acme Corp", customEntities);
+
+    expect(result.anonymizedText).toContain("NAME_");
+    expect(result.anonymizedText).toContain("COMPANY_");
+    expect(result.entities).toHaveLength(2);
+    expect(result.entities[0].entityType).toBe("name");
+    expect(result.entities[0].value).toBe("John Doe");
+    expect(result.entities[1].entityType).toBe("company");
+    expect(result.entities[1].value).toBe("Acme Corp");
+  });
 });
 
 // Run tests if this file is executed directly

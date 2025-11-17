@@ -82,6 +82,7 @@ console.log(original); // "Contact john@email.com or call 555-123-4567. SSN: 123
 | `credit_card` | Credit card numbers     | `1234-5678-9012-3456`, `1234567890123456`                      |
 | `ip_address`  | IP addresses            | `192.168.1.1`, `2001:0db8:85a3:0000:0000:8a2e:0370:7334`       |
 | `url`         | URLs                    | `https://example.com`, `http://sub.domain.org/path`            |
+| **Custom**     | Any custom entity type  | User-defined types like `name`, `company`, `address`, etc.        |
 
 ## 🏗️ Architecture
 
@@ -145,6 +146,14 @@ anonymizer = Anonymizer(entity_types=['email', 'phone'])
 result = anonymizer.anonymize(text)
 # Returns: (anonymized_text: str, mapping: dict, entities: list)
 
+# Anonymize with custom entities
+custom_entities = {
+    'name': ['John Doe', 'Jane Smith'],
+    'company': ['Acme Corp', 'Tech Inc']
+}
+result = anonymizer.anonymize_with_custom(text, custom_entities)
+# Returns: (anonymized_text: str, mapping: dict, entities: list)
+
 # Deanonymize
 original = anonymizer.deanonymize(anonymized_text, mapping)
 # Returns: str
@@ -160,6 +169,14 @@ const anonymizer = new Anonymizer(["email", "phone"]);
 
 // Anonymize
 const result = anonymizer.anonymize(text);
+// Returns: { anonymized_text: string, mapping: object, entities: array }
+
+// Anonymize with custom entities
+const customEntities = {
+    name: ['John Doe', 'Jane Smith'],
+    company: ['Acme Corp', 'Tech Inc']
+};
+const result = anonymizer.anonymizeWithCustom(text, customEntities);
 // Returns: { anonymized_text: string, mapping: object, entities: array }
 
 // Deanonymize
@@ -185,6 +202,34 @@ safe_document = anonymizer.anonymize(user_document)[0]
 const anonymizer = new Anonymizer(["email", "phone", "ssn", "credit_card"]);
 const safeMessage = anonymizer.anonymize(userMessage);
 // Send safeMessage.anonymized_text to LLM
+```
+
+### Custom Entity Anonymization
+
+```python
+# Anonymize custom entities like names and companies
+anonymizer = Anonymizer([])  # No predefined entities
+custom_entities = {
+    'name': ['John Doe', 'Jane Smith'],
+    'company': ['Acme Corp', 'Tech Inc'],
+    'address': ['123 Main St', '456 Oak Ave']
+}
+text = "John Doe works at Acme Corp and lives at 123 Main St"
+result = anonymizer.anonymize_with_custom(text, custom_entities)
+# Result: "NAME_xxx works at COMPANY_xxx and lives at ADDRESS_xxx"
+```
+
+```javascript
+// Custom entity anonymization in Node.js
+const anonymizer = new Anonymizer([]);
+const customEntities = {
+    name: ['John Doe', 'Jane Smith'],
+    company: ['Acme Corp', 'Tech Inc'],
+    address: ['123 Main St', '456 Oak Ave']
+};
+const text = "John Doe works at Acme Corp and lives at 123 Main St";
+const result = anonymizer.anonymizeWithCustom(text, customEntities);
+// Result: "NAME_xxx works at COMPANY_xxx and lives at ADDRESS_xxx"
 ```
 
 ### Data Processing Pipelines
@@ -284,6 +329,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 🗺️ Roadmap
 
+- [x] **Custom Entity Types**: User-defined entity types with any string name
 - [ ] **NER-based Detection**: Named Entity Recognition for PERSON, ORG, LOCATION
 - [ ] **Custom Patterns**: User-defined regex patterns
 - [ ] **External Storage**: Database backends for mapping persistence

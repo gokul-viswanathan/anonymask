@@ -27,6 +27,11 @@ impl EntityDetector {
             EntityType::CreditCard => r"\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b",
             EntityType::IpAddress => r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b",
             EntityType::Url => r"\bhttps?://[^\s]+\b",
+            EntityType::Custom(_) => {
+                return Err(AnonymaskError::InvalidEntityType(
+                    "Custom entity types don't use regex patterns".to_string()
+                ))
+            }
         };
         Regex::new(pattern_str).map_err(AnonymaskError::RegexError)
     }
