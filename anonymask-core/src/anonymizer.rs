@@ -85,7 +85,8 @@ impl Anonymizer {
             EntityType::CreditCard => "CREDIT_CARD",
             EntityType::IpAddress => "IP_ADDRESS",
             EntityType::Url => "URL",
+            EntityType::Custom(name) => name,
         };
-        format!("{}_{}", type_prefix, Uuid::new_v4().simple())
+        format!("{}_{}", type_prefix.to_uppercase(), Uuid::new_v4().simple())
     }
 }
