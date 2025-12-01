@@ -2,6 +2,24 @@
 
 Secure anonymization/de-anonymization library for protecting Personally Identifiable Information (PII) before sending data to Large Language Models (LLMs). Built with Rust for performance and safety, with bindings for Python and Node.js.
 
+## 🎉 What's New in v2.0.0
+
+**Configuration System** - Fine-grained control over anonymization behavior:
+- **Placeholder Formats**: Choose between `standard` (UUID-based), `short` (counter-based), or custom templates
+- **Case Sensitivity**: Control case-sensitive matching for custom entities
+- **Word Boundaries**: Enable word boundary checking to prevent partial word matches
+- **Entity Limits**: Optionally limit the maximum number of entities detected
+
+**Enhanced Regex Patterns**:
+- **Valid IP Detection**: Now validates IPv4 octets (0-255), rejects invalid IPs like `999.999.999.999`
+- **Phone Format Support**: Detects `(555) 123-4567` format in addition to existing patterns
+- **Improved URL Matching**: Better handling of trailing punctuation and special characters
+
+**Comprehensive Testing**:
+- Property-based tests with `proptest` for regression prevention
+- 10+ new property tests covering edge cases
+- Full backward compatibility maintained
+
 ## ✨ Features
 
 - **🚀 High Performance**: Rust-powered core with < 5ms processing time for typical messages
@@ -70,6 +88,51 @@ console.log(result.entities); // Array of detected entities with metadata
 // Deanonymize back to original
 const original = anonymizer.deanonymize(result.anonymized_text, result.mapping);
 console.log(original); // "Contact john@email.com or call 555-123-4567. SSN: 123-45-6789"
+```
+
+## ⚙️ Configuration (v2.0.0)
+
+### Python
+
+```python
+from anonymask import Anonymizer, AnonymizerConfig
+
+# Use short placeholders (EMAIL_1, EMAIL_2 instead of UUIDs)
+config = AnonymizerConfig(placeholder_format="short")
+anonymizer = Anonymizer(['email', 'phone'], config)
+
+# Custom template
+config = AnonymizerConfig(placeholder_format="[{type}:{counter}]")
+anonymizer = Anonymizer(['email'], config)
+
+# All options
+config = AnonymizerConfig(
+    case_sensitive=False,
+    word_boundary_check=True,
+    placeholder_format="short",
+    max_entities=100
+)
+```
+
+### Node.js
+
+```javascript
+const { Anonymizer } = require("@anonymask/core");
+
+// Use short placeholders
+const config = {
+  caseSensitive: true,
+  wordBoundaryCheck: false,
+  placeholderFormat: "short",
+  maxEntities: 0  // unlimited
+};
+const anonymizer = new Anonymizer(['email', 'phone'], config);
+
+// Custom template
+const customConfig = {
+  ...config,
+  placeholderFormat: "[{type}:{counter}]"
+};
 ```
 
 ## 🎯 Supported Entity Types
@@ -346,4 +409,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-**Version**: 0.4.5 | **Built with ❤️ using Rust**
+**Version**: 2.0.0 | **Built with ❤️ using Rust**

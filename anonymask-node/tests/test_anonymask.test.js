@@ -147,6 +147,145 @@ describe("Anonymizer", () => {
   });
 });
 
+describe("AnonymizerConfig (v2.0.0 features)", () => {
+  test("creates config with default values", () => {
+    const config = {
+      caseSensitive: true,
+      wordBoundaryCheck: false,
+      placeholderFormat: "standard",
+      maxEntities: 0
+    };
+    const anonymizer = new Anonymizer(["email"], config);
+    const result = anonymizer.anonymize("test@example.com");
+
+    expect(result.anonymizedText).toContain("EMAIL_");
+    expect(result.entities).toHaveLength(1);
+  });
+
+  test("uses short placeholder format", () => {
+    const config = {
+      caseSensitive: true,
+      wordBoundaryCheck: false,
+      placeholderFormat: "short",
+      maxEntities: 0
+    };
+    const anonymizer = new Anonymizer(["email"], config);
+    const result = anonymizer.anonymize("Contact user@example.com");
+
+    // Short format should use counter: EMAIL_1, EMAIL_2, etc.
+    expect(result.anonymizedText).toContain("EMAIL_1");
+    expect(result.entities).toHaveLength(1);
+  });
+
+  test("uses custom placeholder template", () => {
+    const config = {
+      caseSensitive: true,
+      wordBoundaryCheck: false,
+      placeholderFormat: "[{type}:{counter}]",
+      maxEntities: 0
+    };
+    const anonymizer = new Anonymizer(["email"], config);
+    const result = anonymizer.anonymize("Email: test@example.com");
+
+    // Custom format should match template
+    expect(result.anonymizedText).toContain("[EMAIL:1]");
+    expect(result.entities).toHaveLength(1);
+  });
+
+  test("handles case sensitivity in custom entities", () => {
+    const configSensitive = {
+      caseSensitive: true,
+      wordBoundaryCheck: false,
+      placeholderFormat: "standard",
+      maxEntities: 0
+    };
+    const anonymizer = new Anonymizer([], configSensitive);
+    const customEntities = { name: ["John"] };
+    const result = anonymizer.anonymizeWithCustom("john and John are here", customEntities);
+
+    // Should only match "John" (case-sensitive)
+    const nameCount = (result.anonymizedText.match(/NAME_/g) || []).length;
+    expect(nameCount).toBe(1);
+  });
+
+  test("supports different formats for multiple entities", () => {
+    const text = "Email: user@test.com, Phone: 555-123-4567";
+
+    // Standard format
+    const anonymizer1 = new Anonymizer(["email", "phone"], {
+      caseSensitive: true,
+      wordBoundaryCheck: false,
+      placeholderFormat: "standard",
+      maxEntities: 0
+    });
+    const result1 = anonymizer1.anonymize(text);
+    expect(result1.anonymizedText).toContain("EMAIL_");
+    expect(result1.anonymizedText).toContain("PHONE_");
+
+    // Short format
+    const anonymizer2 = new Anonymizer(["email", "phone"], {
+      caseSensitive: true,
+      wordBoundaryCheck: false,
+      placeholderFormat: "short",
+      maxEntities: 0
+    });
+    const result2 = anonymizer2.anonymize(text);
+    const hasEmail1or2 = result2.anonymizedText.includes("EMAIL_1") || result2.anonymizedText.includes("EMAIL_2");
+    const hasPhone1or2 = result2.anonymizedText.includes("PHONE_1") || result2.anonymizedText.includes("PHONE_2");
+    expect(hasEmail1or2).toBe(true);
+    expect(hasPhone1or2).toBe(true);
+
+    // Custom format
+    const anonymizer3 = new Anonymizer(["email", "phone"], {
+      caseSensitive: true,
+      wordBoundaryCheck: false,
+      placeholderFormat: "<{type}-{counter}>",
+      maxEntities: 0
+    });
+    const result3 = anonymizer3.anonymize(text);
+    expect(result3.anonymizedText).toContain("<EMAIL-");
+    expect(result3.anonymizedText).toContain("<PHONE-");
+  });
+
+  test("maintains backward compatibility without config", () => {
+    // Old way (still supported)
+    const anonymizerOld = new Anonymizer(["email"]);
+
+    // New way with explicit default config
+    const anonymizerNew = new Anonymizer(["email"], {
+      caseSensitive: true,
+      wordBoundaryCheck: false,
+      placeholderFormat: "standard",
+      maxEntities: 0
+    });
+
+    const text = "Contact user@example.com";
+    const resultOld = anonymizerOld.anonymize(text);
+    const resultNew = anonymizerNew.anonymize(text);
+
+    // Both should work and detect email
+    expect(resultOld.anonymizedText).toContain("EMAIL_");
+    expect(resultNew.anonymizedText).toContain("EMAIL_");
+    expect(resultOld.entities).toHaveLength(1);
+    expect(resultNew.entities).toHaveLength(1);
+  });
+
+  test("custom template with UUID placeholder", () => {
+    const config = {
+      caseSensitive: true,
+      wordBoundaryCheck: false,
+      placeholderFormat: "<<{type}_{uuid}>>",
+      maxEntities: 0
+    };
+    const anonymizer = new Anonymizer(["email"], config);
+    const result = anonymizer.anonymize("test@example.com");
+
+    // Should contain template structure
+    expect(result.anonymizedText).toContain("<<EMAIL_");
+    expect(result.anonymizedText).toContain(">>");
+  });
+});
+
 // Run tests if this file is executed directly
 if (require.main === module) {
   // Simple test runner (in real app, use Jest or similar)

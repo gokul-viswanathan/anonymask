@@ -1,6 +1,6 @@
 [package]
 name = "anonymask-core"
-version = "1.1.0"
+version = "2.0.0"
 edition = "2021"
 description = "Core anonymization/de-anonymization library for PII data"
 license = "MIT"
@@ -18,6 +18,7 @@ thiserror = "1.0"
 
 [dev-dependencies]
 criterion = "0.5"
+proptest = "1.4"
 
 [[bench]]
 name = "anonymization_benchmark"
